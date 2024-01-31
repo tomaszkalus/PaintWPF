@@ -1,0 +1,97 @@
+﻿<Window x:Class="Grafika_lab_1_TK.MainWindow"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ xmlns:grafikaLab1Tk="clr-namespace:Grafika_lab_1_TK"
+ Title="MainWindow" Height="720" Width="1280">
+
+    <Window.DataContext>
+        <grafikaLab1Tk:MainViewModel/>
+    </Window.DataContext>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="75*"/>
+            <ColumnDefinition Width="25*"/>
+        </Grid.ColumnDefinitions>
+
+
+        <Canvas Name="paintSurface" 
+        MouseMove="Canvas_MouseMove" 
+        MouseUp="Canvas_MouseUp"  
+        MouseDown="Canvas_MouseDown"
+        Grid.Column="0">
+            <Canvas.Background>
+                <SolidColorBrush Color="Red" Opacity="0"/>
+            </Canvas.Background>
+        </Canvas>
+
+        <StackPanel  Grid.Column="1" Background="Beige">
+            <StackPanel Orientation="Horizontal" Margin="5 15 5 10" VerticalAlignment="Center" >
+                <Label HorizontalAlignment="Center" FontSize="18" FontWeight="Bold" Content="Brush size:"/>
+                <Slider VerticalAlignment="Center" Width="150" Minimum="1" Maximum="100" Value="{Binding BrushSize}" TickFrequency="1" IsSnapToTickEnabled="True" Margin="10 0 10 0"/>
+                <Label HorizontalAlignment="Center" FontSize="18" FontWeight="Bold" Content="{Binding BrushSize}"/>
+            </StackPanel>
+            
+
+            <StackPanel Orientation="Horizontal" Margin="5 0 5 0" VerticalAlignment="Center" >
+                <Button Click="Brush_Btn_Clicked" Margin="10 5 10 0" Content="Brush" Width="50" Height="50"/>
+                <Button Click="Line_Btn_Clicked" Margin="10 5 10 0" Content="Line" Width="50" Height="50"/>
+                <Button Click="Eraser_Btn_Clicked" Margin="10 5 10 0" Content="Eraser" Width="50" Height="50"/>
+                <Button Click="Clear_Btn_Clicked" Margin="10 5 10 0" Content="Clear" Width="50" Height="50"/>
+            </StackPanel>
+            
+
+            <Label HorizontalAlignment="Center" FontSize="18" FontWeight="Bold" Content="{Binding SelectedToolLabel}"/>
+
+
+            <StackPanel Orientation="Horizontal" Margin="5 0 5 0" VerticalAlignment="Center" >
+                <Label HorizontalAlignment="Center" FontSize="18" FontWeight="Bold" Content="Red:" Width="60"/>
+                <Slider VerticalAlignment="Center" Width="190" Minimum="0" Maximum="255" Value="{Binding ColorR}" TickFrequency="1" IsSnapToTickEnabled="True" Margin="10 0 10 0"/>
+                <Label HorizontalAlignment="Center" FontSize="18" FontWeight="Bold" Content="{Binding ColorR}" Width="60"/>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" Margin="5 0 5 0" VerticalAlignment="Center">
+                <Label HorizontalAlignment="Center" FontSize="18" FontWeight="Bold" Content="Green:" Width="60" />
+                <Slider VerticalAlignment="Center" Width="190" Minimum="0" Maximum="255" Value="{Binding ColorG}" TickFrequency="1" IsSnapToTickEnabled="True" Margin="10 0 10 0"/>
+                <Label HorizontalAlignment="Center" FontSize="18" FontWeight="Bold" Content="{Binding ColorR}" Width="60"/>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" Margin="5 0   5 0">
+                <Label HorizontalAlignment="Center" FontSize="18" FontWeight="Bold" Content="Blue:" Width="60"/>
+                <Slider VerticalAlignment="Center" Width="190" Minimum="0" Maximum="255" Value="{Binding ColorB}" TickFrequency="1" IsSnapToTickEnabled="True" Margin="10 0 10 0"/>
+                <Label HorizontalAlignment="Center" FontSize="18" FontWeight="Bold" Content="{Binding ColorR}" Width="60"/>
+            </StackPanel>
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Label Grid.Column="0" Margin="5 0 0 0" HorizontalAlignment="Left" FontSize="18" Content="{Binding ColorRgbLabel}" />
+                <Label Grid.Column="1" Margin="0 0 5 0" HorizontalAlignment="Right" FontSize="18" Content="{Binding ColorHex}" />
+            </Grid>
+
+            <Rectangle Height="80" Stroke="Black" Fill="{Binding ColorHex}" Width="auto" Margin="15 0 15 0"/>
+            
+
+            <StackPanel Orientation="Horizontal" Margin="15">
+                <Button Command="{Binding ChangeColorCommand}" CommandParameter="#000000" Margin="0 0 8 0" Content=" " Background="#000000" Width="29" Height="29"/>
+                <Button Command="{Binding ChangeColorCommand}" CommandParameter="#ffffff" Margin="0 0 8 0" Content=" " Background="#ffffff" Width="29" Height="29"/>
+                <Button Command="{Binding ChangeColorCommand}" CommandParameter="#ff0000" Margin="0 0 8 0" Content=" " Background="#ff0000" Width="29" Height="29"/>
+                <Button Command="{Binding ChangeColorCommand}" CommandParameter="#0000ff" Margin="0 0 8 0" Content=" " Background="#0000ff" Width="29" Height="29"/>
+                <Button Command="{Binding ChangeColorCommand}" CommandParameter="#00ff00" Margin="0 0 8 0" Content=" " Background="#00ff00" Width="29" Height="29"/>
+                <Button Command="{Binding ChangeColorCommand}" CommandParameter="#ecfc05" Margin="0 0 8 0" Content=" " Background="#ecfc05" Width="29" Height="29"/>
+                <Button Command="{Binding ChangeColorCommand}" CommandParameter="#8602eb" Margin="0 0 8 0" Content=" " Background="#8602eb" Width="29" Height="29"/>
+                <Button Command="{Binding ChangeColorCommand}" CommandParameter="#fc3ae6" Margin="0 0 8 0" Content=" " Background="#fc3ae6" Width="29" Height="29"/>
+                
+                
+            </StackPanel>
+            
+
+            
+
+        </StackPanel>
+    </Grid>
+
+</Window>
