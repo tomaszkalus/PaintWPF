@@ -33,13 +33,22 @@
             </StackPanel>
             
 
-            <StackPanel Orientation="Horizontal" Margin="5 0 5 0" VerticalAlignment="Center" >
-                <Button Click="Brush_Btn_Clicked" Margin="10 5 10 0" Content="Brush" Width="50" Height="50"/>
-                <Button Click="Line_Btn_Clicked" Margin="10 5 10 0" Content="Line" Width="50" Height="50"/>
-                <Button Click="Eraser_Btn_Clicked" Margin="10 5 10 0" Content="Eraser" Width="50" Height="50"/>
-                <Button Click="Clear_Btn_Clicked" Margin="10 5 10 0" Content="Clear" Width="50" Height="50"/>
+            <StackPanel Orientation="Horizontal" Margin="10 0 5 0" VerticalAlignment="Center" >
+                <Button Click="Brush_Btn_Clicked" Margin="0 5 10 0" Content="Brush" Width="50" Height="50"/>
+                <Button Click="Line_Btn_Clicked" Margin="0 5 10 0" Content="Line" Width="50" Height="50"/>
+                <Button Click="Ellipse_Btn_Clicked" Margin="0 5 10 0" Content="" Width="50" Height="50"/>
+                <Button Click="Clear_Btn_Clicked" Margin="0 5 10 0" Content="" Width="50" Height="50"/>
+                <Button Click="Clear_Btn_Clicked" Margin="0 5 10 0" Content="Clear" Width="50" Height="50"/>
             </StackPanel>
-            
+
+            <StackPanel Orientation="Horizontal" Margin="10 5 5 0" VerticalAlignment="Center" >
+                <Button Click="Ellipse_Btn_Clicked" Margin="0 5 10 0" Content="Ellipse" Width="50" Height="50"/>
+                <Button Click="Line_Btn_Clicked" Margin="0 5 10 0" Content="Line" Width="50" Height="50"/>
+                <Button Click="Path_Btn_Clicked" Margin="0 5 10 0" Content="Path" Width="50" Height="50"/>
+                <Button Click="Polygon_Btn_Clicked" Margin="0 5 10 0" Content="Polygon" Width="50" Height="50"/>
+                <Button Click="Rectangle_Btn_Clicked" Margin="0 5 10 0" Content="Rectangle" Width="50" Height="50"/>
+            </StackPanel>
+
 
             <Label HorizontalAlignment="Center" FontSize="18" FontWeight="Bold" Content="{Binding SelectedToolLabel}"/>
 

@@ -19,18 +19,16 @@ namespace Grafika_lab_1_TK
     {
         private SolidColorBrush _selectedColor;
 
-        private Point startPoint;
-        private Line currentLine;
-        private LineTool lineTool;
-
         private int _brushSize;
         private int _colorR = 0;
         private int _colorG = 0;
         private int _colorB = 0;
         public enum Tools
         {
+            Ellipse,
             Line,
-            Circle,
+            Path,
+            Polygon,
             Rectangle,
             Brush
         }
@@ -101,17 +99,12 @@ namespace Grafika_lab_1_TK
 
         public string ColorRgbLabel => $"RGB: ({ColorR.ToString()}, {ColorG.ToString()}, {ColorB.ToString()})";
         public string ColorHex => "#" + ColorR.ToString("X2") + ColorG.ToString("X2") + ColorB.ToString("X2");
-
         public string SelectedToolLabel => $"Selected tool: {SelectedTool.ToString()}";
 
         public MainViewModel()
         {
-            // Set default values
             SelectedColor = Brushes.Black;
             BrushSize = 5;
-
-            // Initialize commands
-            
             ChangeColorCommand = new RelayCommand(ChangeColor);
             ChangeBrushSizeCommand = new RelayCommand(ChangeBrushSize);
         }
@@ -169,10 +162,5 @@ namespace Grafika_lab_1_TK
             OnPropertyChanged(propertyName);
             return true;
         }
-
-
-
     }
-
-
 }
