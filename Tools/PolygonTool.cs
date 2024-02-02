@@ -11,7 +11,8 @@ namespace Grafika_lab_1_TK.Tools
     {
         private Line? _previewLine = null;
         private readonly Canvas _paintSurface;
-        private Point startPoint;
+        private Point currentLineStartPoint;
+        private Point polygonStartPoint;
         private readonly MainViewModel _viewModel;
         private const double Tolerance = 10.0;
 
@@ -19,6 +20,14 @@ namespace Grafika_lab_1_TK.Tools
         {
             double distance = Math.Sqrt(Math.Pow(startPoint.X - x, 2) + Math.Pow(startPoint.Y - y, 2));
             return distance <= Tolerance;
+        }
+
+        private void StopDrawing()
+        {
+            _paintSurface.Children.Remove(_previewLine);
+            _previewLine = null;
+            _paintSurface.MouseMove -= MouseMove;
+            return;
         }
 
         public void MouseMove(object sender, MouseEventArgs e)
@@ -48,15 +57,16 @@ namespace Grafika_lab_1_TK.Tools
             }
             if (_previewLine == null)
             {
-                startPoint = e.GetPosition(_paintSurface);
+                currentLineStartPoint = e.GetPosition(_paintSurface);
+                polygonStartPoint = currentLineStartPoint;
                 _previewLine = new Line
                 {
                     Stroke = Brushes.Gray,
                     StrokeThickness = 2
                 };
 
-                _previewLine.X1 = startPoint.X;
-                _previewLine.Y1 = startPoint.Y;
+                _previewLine.X1 = currentLineStartPoint.X;
+                _previewLine.Y1 = currentLineStartPoint.Y;
                 _paintSurface.Children.Add(_previewLine);
 
                 _paintSurface.MouseMove += MouseMove;
@@ -65,17 +75,41 @@ namespace Grafika_lab_1_TK.Tools
             {
                 Point endPoint = e.GetPosition(_paintSurface);
                 _paintSurface.Children.Remove(_previewLine);
-                Line finalLine = new Line
+
+                Line finalLine;
+
+                if (IsCloseToStartingPoint(polygonStartPoint, endPoint.X, endPoint.Y))
+                {
+                    finalLine = new Line
+                    {
+                        Stroke = _viewModel.SelectedColor,
+                        StrokeThickness = _viewModel.BrushSize * 2,
+                        X1 = currentLineStartPoint.X,
+                        Y1 = currentLineStartPoint.Y,
+                        X2 = polygonStartPoint.X,
+                        Y2 = polygonStartPoint.Y
+                    };
+
+                    _paintSurface.Children.Add(finalLine);
+
+                    StopDrawing();
+
+                    return;
+                }
+
+                finalLine = new Line
                 {
                     Stroke = _viewModel.SelectedColor,
                     StrokeThickness = _viewModel.BrushSize * 2,
-                    X1 = startPoint.X,
-                    Y1 = startPoint.Y,
+                    X1 = currentLineStartPoint.X,
+                    Y1 = currentLineStartPoint.Y,
                     X2 = endPoint.X,
                     Y2 = endPoint.Y
                 };
 
                 _paintSurface.Children.Add(finalLine);
+
+                
 
                 _previewLine = new Line
                 {
@@ -83,11 +117,17 @@ namespace Grafika_lab_1_TK.Tools
                     StrokeThickness = 2
                 };
 
-                startPoint = e.GetPosition(_paintSurface);
+                currentLineStartPoint = e.GetPosition(_paintSurface);
 
-                _previewLine.X1 = startPoint.X;
-                _previewLine.Y1 = startPoint.Y;
+                _previewLine.X1 = currentLineStartPoint.X;
+                _previewLine.Y1 = currentLineStartPoint.Y;
                 _paintSurface.Children.Add(_previewLine);
+
+                
+
+
+
+
             }
         }
     }

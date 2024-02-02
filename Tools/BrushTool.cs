@@ -9,6 +9,7 @@ namespace Grafika_lab_1_TK.Tools
 {
     public class BrushTool
     {
+        private Ellipse? _previewEllipse = null;
         private Point? _previousPoint = null;
         private readonly Canvas _paintSurface;
         private readonly MainViewModel _viewModel;
@@ -19,10 +20,6 @@ namespace Grafika_lab_1_TK.Tools
             _viewModel = viewModel;
         }
 
-        public void MouseUp(object sender, MouseEventArgs e)
-        {
-            _previousPoint = null;
-        }
         public void MouseMove(object sender, MouseEventArgs e)
         {
             if (e.LeftButton == MouseButtonState.Pressed)
@@ -44,7 +41,6 @@ namespace Grafika_lab_1_TK.Tools
                         double y = startPoint.Y + (endPoint.Y - startPoint.Y) * interpolation;
 
                         Ellipse ellipse = new Ellipse();
-                        ellipse.Fill = SystemColors.WindowFrameBrush;
 
                         double diameter = _viewModel.BrushSize * 2;
                         ellipse.Fill = _viewModel.SelectedColor;
@@ -58,6 +54,28 @@ namespace Grafika_lab_1_TK.Tools
                 }
 
                 _previousPoint = currentPoint;
+            }
+            else
+            {
+                _previousPoint = null;
+                if (_previewEllipse != null)
+                {
+                    _paintSurface.Children.Remove(_previewEllipse);
+                    _previewEllipse = null;
+                }
+
+                _previewEllipse = new Ellipse()
+                {
+                    Fill = _viewModel.SelectedColor,
+                    Width = _viewModel.BrushSize * 2,
+                    Height = _viewModel.BrushSize * 2,
+                    Margin = new Thickness(e.GetPosition(_paintSurface).X - _viewModel.BrushSize,
+                        e.GetPosition(_paintSurface).Y - _viewModel.BrushSize, 0, 0)
+
+                };
+                _previewEllipse.Fill = _viewModel.SelectedColor;
+
+                _paintSurface.Children.Add(_previewEllipse);
             }
         }
 

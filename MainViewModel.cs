@@ -15,6 +15,24 @@ using ColorConverter = System.Windows.Media.ColorConverter;
 
 namespace Grafika_lab_1_TK
 {
+    public record HsvColor(double Hue, int Saturation, int Value) : INotifyPropertyChanged
+    {
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        protected bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
+        {
+            if (EqualityComparer<T>.Default.Equals(field, value)) return false;
+            field = value;
+            OnPropertyChanged(propertyName);
+            return true;
+        }
+    }
+
     public class MainViewModel : INotifyPropertyChanged 
     {
         private SolidColorBrush _selectedColor;
@@ -23,6 +41,9 @@ namespace Grafika_lab_1_TK
         private int _colorR = 0;
         private int _colorG = 0;
         private int _colorB = 0;
+
+        private int[] _layersOpacity;
+        private int _selectedLayer;
         public enum Tools
         {
             Ellipse,
@@ -30,7 +51,10 @@ namespace Grafika_lab_1_TK
             Path,
             Polygon,
             Rectangle,
-            Brush
+            Brush,
+            TriangleShape,
+            RectangleShape,
+            StarShape
         }
         public Tools SelectedTool { get; set; } = Tools.Brush;
 
@@ -100,6 +124,8 @@ namespace Grafika_lab_1_TK
         public string ColorRgbLabel => $"RGB: ({ColorR.ToString()}, {ColorG.ToString()}, {ColorB.ToString()})";
         public string ColorHex => "#" + ColorR.ToString("X2") + ColorG.ToString("X2") + ColorB.ToString("X2");
         public string SelectedToolLabel => $"Selected tool: {SelectedTool.ToString()}";
+        public string ColorHsvLabel => $"HSV: ({Math.Round(HsvColorValue.Hue), 2}, {HsvColorValue.Saturation}, {HsvColorValue.Value})";
+        public HsvColor HsvColorValue => RgbToHsv(ColorR, ColorG, ColorB);
 
         public MainViewModel()
         {
@@ -115,6 +141,8 @@ namespace Grafika_lab_1_TK
             OnPropertyChanged(nameof(ColorR));
             OnPropertyChanged(nameof(ColorG));
             OnPropertyChanged(nameof(ColorB));
+            OnPropertyChanged(nameof(HsvColorValue));
+            OnPropertyChanged(nameof(ColorHsvLabel));
         }
 
         private void ChangeColor(object parameter)
@@ -162,5 +190,53 @@ namespace Grafika_lab_1_TK
             OnPropertyChanged(propertyName);
             return true;
         }
+
+        public void ResetTool()
+        {
+            //this.SelectedTool.Reset();
+        }
+
+        public static HsvColor RgbToHsv(int r, int g, int b)
+        {
+            double normR = r / 255.0;
+            double normG = g / 255.0;
+            double normB = b / 255.0;
+
+            double min = Math.Min(Math.Min(normR, normG), normB);
+            double max = Math.Max(Math.Max(normR, normG), normB);
+            double delta = max - min;
+
+            int value = (int)(max * 255);
+
+            int saturation = (int)((max == 0) ? 0 : (delta / max) * 255);
+
+            double hue = 0;
+
+            if (delta != 0)
+            {
+                if (max == normR)
+                {
+                    hue = ((normG - normB) / delta) % 6;
+                }
+                else if (max == normG)
+                {
+                    hue = ((normB - normR) / delta) + 2;
+                }
+                else if (max == normB)
+                {
+                    hue = ((normR - normG) / delta) + 4;
+                }
+            }
+
+            hue *= 60;
+            if (hue < 0)
+            {
+                hue += 360;
+            }
+
+            return new HsvColor(hue, saturation, value);
+        }
+
+        
     }
 }
