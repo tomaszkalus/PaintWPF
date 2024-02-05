@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,7 +12,7 @@ using System.Windows.Shapes;
 
 namespace Grafika_lab_1_TK.Shapes
 {
-    class TriangleShape : Shape
+    class TriangleShape : ShapeBase
     {
         protected override PointCollection GetPoints(Point point)
         {
@@ -23,9 +24,9 @@ namespace Grafika_lab_1_TK.Shapes
             };
         }
 
-        public TriangleShape(Canvas paintSurface, MainViewModel viewModel) : base(paintSurface, viewModel)
+
+        public TriangleShape(ObservableCollection<Shape> shapes, MainViewModel viewModel) : base(shapes, viewModel)
         {
         }
-
     }
 }

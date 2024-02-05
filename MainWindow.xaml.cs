@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using Grafika_lab_1_TK.Shapes;
@@ -20,170 +21,88 @@ namespace Grafika_lab_1_TK
     /// </summary>
     public partial class MainWindow : Window
     {
-        private readonly LineTool lineTool;
-        private readonly BrushTool brushTool;
-        private readonly EllipseTool ellipseTool;
-        private readonly PathTool pathTool;
-        private readonly PolygonTool polygonTool;
-        private readonly RectangleTool rectangleTool;
-        private readonly TriangleShape triangleShape;
-        private readonly RectangleShape rectangleShape;
-        private readonly StarShape starShape;
+        
+        private Canvas _paintSurface;
 
         private double[,] kernelMatrix = new double[3, 3];
-        private Layer _activeLayer;
 
         
 
         private readonly MainViewModel mainViewModel;
-        private MainViewModel.Tools selectedTool => mainViewModel.SelectedTool;
         
         public MainWindow()
         {
 
+
             mainViewModel = new MainViewModel();
             InitializeComponent();
+            _paintSurface = null;
             this.DataContext = this.mainViewModel;
 
-            _activeLayer = mainViewModel.SelectedLayer;
-
-            lineTool = new LineTool(paintSurface, mainViewModel);
-            brushTool = new BrushTool(paintSurface, mainViewModel);
-            ellipseTool = new EllipseTool(paintSurface, mainViewModel);
-            pathTool = new PathTool(paintSurface, mainViewModel);
-            polygonTool = new PolygonTool(paintSurface, mainViewModel);
-            rectangleTool = new RectangleTool(paintSurface, mainViewModel);
-            triangleShape = new TriangleShape(paintSurface, mainViewModel);
-            rectangleShape = new RectangleShape(paintSurface, mainViewModel);
-            starShape = new StarShape(paintSurface, mainViewModel);
 
             SetIdentityKernel();
-            //ApplyFilter();
+
+            this.Loaded += MainWindow_Loaded;
         }
 
 
+        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            _paintSurface = FindChild<Canvas>(this, "paintSurface");
+        }
+
+        public static T FindChild<T>(DependencyObject parent, string childName)
+            where T : DependencyObject
+        {
+            // Direct match?
+            if (parent is FrameworkElement frameworkElement && frameworkElement.Name == childName)
+                return (T)parent;
+
+            // Search children
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+            {
+                var child = VisualTreeHelper.GetChild(parent, i);
+
+                // Not the right type, ignore
+                if (!(child is T))
+                    continue;
+
+                // Found?
+                if (child is FrameworkElement frameworkElementChild && frameworkElementChild.Name == childName)
+                    return (T)child;
+
+                // Search within
+                var result = FindChild<T>(child, childName);
+                if (result != null)
+                    return result;
+            }
+
+            return null;
+        }
 
         private void Canvas_MouseMove(object sender, MouseEventArgs e)
         {
-            switch (selectedTool)
-            {
-                case MainViewModel.Tools.Brush:
-                    brushTool.MouseMove(sender, e);
-                    break;
-                case MainViewModel.Tools.Line:
-                    lineTool.MouseMove(sender, e);
-                    break;
-                case MainViewModel.Tools.Ellipse:
-                    ellipseTool.MouseMove(sender, e);
-                    break;
-                case MainViewModel.Tools.Path:
-                    pathTool.MouseMove(sender, e);
-                    break;
-                case MainViewModel.Tools.Polygon:
-                    polygonTool.MouseMove(sender, e);
-                    break;
-                case MainViewModel.Tools.Rectangle:
-                    rectangleTool.MouseMove(sender, e);
-                    break;
-                case MainViewModel.Tools.TriangleShape:
-                    triangleShape.MouseMove(sender, e);
-                    break;
-                case MainViewModel.Tools.RectangleShape:
-                    rectangleShape.MouseMove(sender, e);
-                    break;
-                case MainViewModel.Tools.StarShape:
-                    starShape.MouseMove(sender, e);
-                    break;
+            Point position = e.GetPosition(_paintSurface);
 
-            }
+            mainViewModel.Canvas_MouseMove(sender, e, position);
 
         }
 
         private void Canvas_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            switch (selectedTool)
-            {
-                case MainViewModel.Tools.Brush:
-                    break;
-                case MainViewModel.Tools.Line:
-                    lineTool.MouseDown(sender, e);
-                    break;
-                case MainViewModel.Tools.Ellipse:
-                    ellipseTool.MouseDown(sender, e);
-                    break;
-                case MainViewModel.Tools.Path:
-                    pathTool.MouseDown(sender, e);
-                    break;
-                case MainViewModel.Tools.Polygon:
-                    polygonTool.MouseDown(sender, e);
-                    break;
-                case MainViewModel.Tools.Rectangle:
-                    rectangleTool.MouseDown(sender, e);
-                    break;
-                case MainViewModel.Tools.TriangleShape:
-                    triangleShape.MouseDown(sender, e);
-                    break;
-                case MainViewModel.Tools.RectangleShape:
-                    rectangleShape.MouseDown(sender, e);
-                    break;
-                case MainViewModel.Tools.StarShape:
-                    starShape.MouseDown(sender, e);
-                    break;
-            }
-        }   
 
+            Point position = e.GetPosition(_paintSurface);
 
-        private void Brush_Btn_Clicked(object sender, RoutedEventArgs e)
-        {
-            mainViewModel.ChangeTool(MainViewModel.Tools.Brush);
+            mainViewModel.Canvas_MouseDown(sender, e, position);
 
         }
 
-        private void Line_Btn_Clicked(object sender, RoutedEventArgs e)
+        private void Canvas_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            mainViewModel.ChangeTool(MainViewModel.Tools.Line);
+            Point position = e.GetPosition(_paintSurface);
 
-        }
+            mainViewModel.Canvas_MouseUp(sender, e, position);
 
-        private void Clear_Btn_Clicked(object sender, RoutedEventArgs e)
-        {
-            paintSurface.Children.Clear();
-        }
-
-
-        private void Ellipse_Btn_Clicked(object sender, RoutedEventArgs e)
-        {
-            mainViewModel.ChangeTool(MainViewModel.Tools.Ellipse);
-        }
-
-        private void Path_Btn_Clicked(object sender, RoutedEventArgs e)
-        {
-            mainViewModel.ChangeTool(MainViewModel.Tools.Path);
-        }
-
-        private void Polygon_Btn_Clicked(object sender, RoutedEventArgs e)
-        {
-            mainViewModel.ChangeTool(MainViewModel.Tools.Polygon);
-        }
-
-        private void Rectangle_Btn_Clicked(object sender, RoutedEventArgs e)
-        {
-            mainViewModel.ChangeTool(MainViewModel.Tools.Rectangle);
-        }
-
-        private void Shape_Triangle_Btn_Clicked(object sender, RoutedEventArgs e)
-        {
-            mainViewModel.ChangeTool(MainViewModel.Tools.TriangleShape);
-        }
-
-        private void Shape_Rectangle_Btn_Clicked(object sender, RoutedEventArgs e)
-        {
-            mainViewModel.ChangeTool(MainViewModel.Tools.RectangleShape);
-        }
-
-        private void Shape_Star_Btn_Clicked(object sender, RoutedEventArgs e)
-        {
-            mainViewModel.ChangeTool(MainViewModel.Tools.StarShape);
         }
 
 
@@ -202,7 +121,7 @@ namespace Grafika_lab_1_TK
         private void ApplyFilter()
         {
 
-            CanvasExtensions canvasExtensions = new CanvasExtensions(paintSurface);
+            CanvasExtensions canvasExtensions = new CanvasExtensions(_paintSurface);
 
             BitmapSource bmp = canvasExtensions.ToBitmapSource();
 
@@ -263,13 +182,10 @@ namespace Grafika_lab_1_TK
         }
 
 
-        private void ToggleLayer(object sender, RoutedEventArgs e)
+
+        private void Canvas_Loaded(object sender, RoutedEventArgs e)
         {
-            foreach (UIElement paintSurfaceChild in paintSurface.Children)
-            {
-                paintSurfaceChild.Visibility = paintSurfaceChild.Visibility == Visibility.Visible ? Visibility.Hidden : Visibility.Visible;
-                
-            }
+            _paintSurface = sender as Canvas;
         }
     }
 }

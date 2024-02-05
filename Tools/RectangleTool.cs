@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -10,78 +11,65 @@ namespace Grafika_lab_1_TK.Tools
     public class RectangleTool : ToolBase
     {
         private Rectangle? _previewRectangle = null;
-        private readonly Canvas _paintSurface;
-        private Point startPoint;
-        private readonly MainViewModel _viewModel;
+        private Point? startPoint = null;
 
-        public override void MouseMove(object sender, MouseEventArgs e)
+        public RectangleTool(ObservableCollection<Shape> shapes, MainViewModel viewModel) : base(shapes, viewModel)
         {
-            Point currentMousePosition = e.GetPosition(_paintSurface);
-            if (_previewRectangle != null)
-            {
-                double width = currentMousePosition.X - startPoint.X;
-                double height = currentMousePosition.Y - startPoint.Y;
-
-                // Update the size and position of the preview rectangle
-                _previewRectangle.Width = Math.Abs(width);
-                _previewRectangle.Height = Math.Abs(height);
-
-                // Ensure the rectangle is positioned correctly
-                _previewRectangle.SetValue(Canvas.LeftProperty, width < 0 ? currentMousePosition.X : startPoint.X);
-                _previewRectangle.SetValue(Canvas.TopProperty, height < 0 ? currentMousePosition.Y : startPoint.Y);
-            }
         }
 
-        public RectangleTool(Canvas paintSurface, MainViewModel viewModel) : base(paintSurface, viewModel)
+        public override void MouseDown(object sender, MouseButtonEventArgs e, Point position)
         {
-            _paintSurface = paintSurface;
-            _viewModel = viewModel;
-        }
-
-        public override void MouseDown(object sender, MouseEventArgs e)
-        {
-            if (_previewRectangle == null)
+            if (!startPoint.HasValue)
             {
-                startPoint = e.GetPosition(_paintSurface);
+                startPoint = position;
+
                 _previewRectangle = new Rectangle
                 {
                     Stroke = Brushes.Gray,
-                    StrokeThickness = 2,
+                    StrokeThickness = _viewModel.BrushSize,
                     Fill = Brushes.Transparent
                 };
 
-                // Set initial position
-                _previewRectangle.SetValue(Canvas.LeftProperty, startPoint.X);
-                _previewRectangle.SetValue(Canvas.TopProperty, startPoint.Y);
-
-                _paintSurface.Children.Add(_previewRectangle);
-
-                _paintSurface.MouseMove += MouseMove;
+                _shapes.Add(_previewRectangle);
             }
-            else
-            {
-                Point endPoint = e.GetPosition(_paintSurface);
-                _paintSurface.Children.Remove(_previewRectangle);
+        }
 
-                // Create the final rectangle
+        public override void MouseMove(object sender, MouseEventArgs e, Point position)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed && startPoint.HasValue && _previewRectangle != null)
+            {
+                double width = position.X - startPoint.Value.X;
+                double height = position.Y - startPoint.Value.Y;
+
+                _previewRectangle.Width = Math.Abs(width);
+                _previewRectangle.Height = Math.Abs(height);
+
+                _previewRectangle.SetValue(Canvas.LeftProperty, width < 0 ? position.X : startPoint.Value.X);
+                _previewRectangle.SetValue(Canvas.TopProperty, height < 0 ? position.Y : startPoint.Value.Y);
+            }
+        }
+
+        public override void MouseUp(object sender, MouseButtonEventArgs e, Point position)
+        {
+            if (startPoint.HasValue)
+            {
                 Rectangle finalRectangle = new Rectangle
                 {
                     Stroke = _viewModel.SelectedColor,
                     StrokeThickness = _viewModel.BrushSize * 2,
-                    Fill = Brushes.Transparent,
-                    Width = Math.Abs(endPoint.X - startPoint.X),
-                    Height = Math.Abs(endPoint.Y - startPoint.Y)
+                    Width = Math.Abs(position.X - startPoint.Value.X),
+                    Height = Math.Abs(position.Y - startPoint.Value.Y)
                 };
 
-                // Ensure the rectangle is positioned correctly
-                finalRectangle.SetValue(Canvas.LeftProperty, Math.Min(startPoint.X, endPoint.X));
-                finalRectangle.SetValue(Canvas.TopProperty, Math.Min(startPoint.Y, endPoint.Y));
+                finalRectangle.SetValue(Canvas.LeftProperty, Math.Min(startPoint.Value.X, position.X));
+                finalRectangle.SetValue(Canvas.TopProperty, Math.Min(startPoint.Value.Y, position.Y));
 
-                _paintSurface.Children.Add(finalRectangle);
+                _shapes.Add(finalRectangle);
 
                 _previewRectangle = null;
-                _paintSurface.MouseMove -= MouseMove;
+                startPoint = null;
             }
         }
     }
+
 }

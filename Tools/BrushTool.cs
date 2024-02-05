@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
@@ -10,83 +8,80 @@ namespace Grafika_lab_1_TK.Tools
 {
     public class BrushTool : ToolBase
     {
-        private Ellipse? _previewEllipse = null;
-        private Point? _previousPoint = null;
-        private readonly Canvas _paintSurface;
-        private readonly MainViewModel _viewModel;
-        private readonly Layer _layer;
-        private readonly ObservableCollection<Shape> _shapes;
+        private PathFigure _pathFigure;
+        private PathGeometry _pathGeometry;
+        private Path _path;
+        private ObservableCollection<Shape> _shapes;
+        private MainViewModel _viewModel;
+        private Ellipse _previewEllipse;
 
-        public BrushTool(Canvas paintSurface, MainViewModel viewModel) : base(paintSurface, viewModel)
+        public BrushTool(ObservableCollection<Shape> shapes, MainViewModel viewModel) : base(shapes, viewModel)
         {
-            _paintSurface = paintSurface;
+            _shapes = shapes;
             _viewModel = viewModel;
-            //_shapes = shapes;
+            _previewEllipse = new Ellipse
+            {
+                Fill = Brushes.Gray,
+                Width = _viewModel.BrushSize * 2,
+                Height = _viewModel.BrushSize * 2,
+                Visibility = Visibility.Collapsed
+            };
+            _shapes.Add(_previewEllipse);
         }
 
-        public override void MouseMove(object sender, MouseEventArgs e)
+        public override void MouseMove(object sender, MouseEventArgs e, Point position)
         {
             if (e.LeftButton == MouseButtonState.Pressed)
             {
-                Point currentPoint = e.GetPosition(_paintSurface);
-
-                if (_previousPoint != null)
+                if (_pathFigure != null)
                 {
-                    Point startPoint = _previousPoint.Value;
-                    Point endPoint = currentPoint;
-
-                    double distance = Math.Sqrt(Math.Pow(endPoint.X - startPoint.X, 2) + Math.Pow(endPoint.Y - startPoint.Y, 2));
-                    int steps = (int)distance * 2;
-
-                    for (int i = 0; i < steps; i++)
-                    {
-                        double interpolation = (double)i / steps;
-                        double x = startPoint.X + (endPoint.X - startPoint.X) * interpolation;
-                        double y = startPoint.Y + (endPoint.Y - startPoint.Y) * interpolation;
-
-                        Ellipse ellipse = new Ellipse();
-
-                        double diameter = _viewModel.BrushSize * 2;
-                        ellipse.Fill = _viewModel.SelectedColor;
-
-                        ellipse.Width = diameter;
-                        ellipse.Height = diameter;
-                        ellipse.Margin = new Thickness(x - _viewModel.BrushSize, y - _viewModel.BrushSize, 0, 0);
-                        //_layer.AddElement(ellipse);
-                        _paintSurface.Children.Add(ellipse);
-
-                    }
+                    _pathFigure.Segments.Add(new LineSegment(position, true));
+                    _previewEllipse.Visibility = Visibility.Collapsed;
                 }
-
-                _previousPoint = currentPoint;
             }
             else
             {
-                _previousPoint = null;
-                if (_previewEllipse != null)
+                if (_pathFigure == null)
                 {
-                    _paintSurface.Children.Remove(_previewEllipse);
-                    _previewEllipse = null;
+                    _previewEllipse.Margin = new Thickness(position.X - _viewModel.BrushSize,
+                        position.Y - _viewModel.BrushSize, 0, 0);
+                    _previewEllipse.Visibility = Visibility.Visible;
                 }
-
-                _previewEllipse = new Ellipse()
-                {
-                    Fill = _viewModel.SelectedColor,
-                    Width = _viewModel.BrushSize * 2,
-                    Height = _viewModel.BrushSize * 2,
-                    Margin = new Thickness(e.GetPosition(_paintSurface).X - _viewModel.BrushSize,
-                        e.GetPosition(_paintSurface).Y - _viewModel.BrushSize, 0, 0)
-
-                };
-                _previewEllipse.Fill = _viewModel.SelectedColor;
-
-                _paintSurface.Children.Add(_previewEllipse);
             }
         }
 
-        public override void MouseDown(object sender, MouseEventArgs e)
+        public override void MouseDown(object sender, MouseButtonEventArgs e, Point position)
         {
-            throw new NotImplementedException();
+            _pathFigure = new PathFigure
+            {
+                StartPoint = position
+            };
+
+            _pathFigure.Segments.Add(new LineSegment(position, true));
+
+            _pathGeometry = new PathGeometry();
+            _pathGeometry.Figures.Add(_pathFigure);
+
+            _path = new Path
+            {
+                Stroke = _viewModel.SelectedColor,
+                StrokeThickness = _viewModel.BrushSize,
+                Data = _pathGeometry
+            };
+
+            _shapes.Add(_path);
+
+            _previewEllipse.Visibility = Visibility.Collapsed;
+        }
+
+        public override void MouseUp(object sender, MouseButtonEventArgs e, Point position)
+        {
+            _pathFigure = null;
+            _pathGeometry = null;
+            _path = null;
         }
     }
+
 }
+
+

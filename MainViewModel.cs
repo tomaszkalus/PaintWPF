@@ -1,20 +1,14 @@
-﻿using System;
+﻿using Grafika_lab_1_TK.Shapes;
+using Grafika_lab_1_TK.Tools;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Drawing;
-using System.Linq;
-using System.Net.WebSockets;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Controls;
+using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Shapes;
-using Grafika_lab_1_TK.Shapes;
-using Grafika_lab_1_TK.Tools;
 using Color = System.Windows.Media.Color;
 using ColorConverter = System.Windows.Media.ColorConverter;
 using Shape = System.Windows.Shapes.Shape;
@@ -56,7 +50,6 @@ namespace Grafika_lab_1_TK
 
         public ObservableCollection<Shape> Shapes { get; private set; } = new ObservableCollection<Shape>();
 
-        public Layer SelectedLayer => _selectedLayer;
 
         public enum Tools
         {
@@ -104,8 +97,9 @@ namespace Grafika_lab_1_TK
 
         public RelayCommand ChangeColorCommand { get; }
         public RelayCommand ChangeBrushSizeCommand { get; }
-        public RelayCommand ToogleLayerCommand { get; }
+        public RelayCommand ToggleLayerCommand { get; }
         public RelayCommand SelectLayerCommand { get; }
+        public RelayCommand ChangeToolCommand { get; }
 
 
         public int ColorR
@@ -144,21 +138,13 @@ namespace Grafika_lab_1_TK
         public string ColorRgbLabel => $"RGB: ({ColorR.ToString()}, {ColorG.ToString()}, {ColorB.ToString()})";
         public string ColorHex => "#" + ColorR.ToString("X2") + ColorG.ToString("X2") + ColorB.ToString("X2");
         public string SelectedToolLabel => $"Selected tool: {SelectedTool.ToString()}";
-        public string ColorHsvLabel => $"HSV: ({Math.Round(HsvColorValue.Hue),2}, {HsvColorValue.Saturation}, {HsvColorValue.Value})";
+
+        public string ColorHsvLabel =>
+            $"HSV: ({Math.Round(HsvColorValue.Hue),2}, {HsvColorValue.Saturation}, {HsvColorValue.Value})";
+
         public HsvColor HsvColorValue => RgbToHsv(ColorR, ColorG, ColorB);
 
-        public string SelectedLayerLabel => $"Selected layer: {SelectedLayer}";
-        private Canvas _paintSurface;
-
-        public Canvas PaintSurface
-        {
-            get { return _paintSurface; }
-            set
-            {
-                _paintSurface = value;
-                OnPropertyChanged();
-            }
-        }
+        public string SelectedLayerLabel => $"Selected layer: {_selectedLayer}";
 
         public MainViewModel()
         {
@@ -166,23 +152,25 @@ namespace Grafika_lab_1_TK
             BrushSize = 5;
             ChangeColorCommand = new RelayCommand(ChangeColor);
             ChangeBrushSizeCommand = new RelayCommand(ChangeBrushSize);
-            ToogleLayerCommand = new RelayCommand(ToogleLayer);
+            ToggleLayerCommand = new RelayCommand(ToggleLayer);
             SelectLayerCommand = new RelayCommand(SelectLayer);
-            
+            ChangeToolCommand = new RelayCommand(ChangeTool);
 
 
+            toolsDictionary = new Dictionary<Tools, ToolBase>()
+            {
+                { Tools.Ellipse, new EllipseTool(Shapes, this) },
+                { Tools.Line, new LineTool(Shapes, this) },
+                { Tools.Path, new PathTool(Shapes, this) },
+                { Tools.Polygon, new PolygonTool(Shapes, this) },
+                { Tools.Rectangle, new RectangleTool(Shapes, this) },
+                { Tools.Brush, new BrushTool(Shapes, this) },
+                { Tools.TriangleShape, new TriangleShape(Shapes, this) },
+                { Tools.RectangleShape, new RectangleShape(Shapes, this) },
+                { Tools.StarShape, new StarShape(Shapes, this) }
+            };
 
-            //toolsDictionary = new Dictionary<Tools, ToolBase>()
-            //{
-            //    { Tools.Ellipse, new EllipseTool(paintSurface, this) },
-            //    { Tools.Line, new LineTool(paintSurface, this) },
-            //    { Tools.Path, new PathTool(paintSurface, this) },
-            //    { Tools.Polygon, new PolygonTool(paintSurface, this) },
-            //    { Tools.Rectangle, new RectangleTool(paintSurface, this) },
-            //    { Tools.Brush, new BrushTool(Shapes, this) },
-            //};
-
-            //_selectedTool = toolsDictionary[Tools.Brush];
+            _selectedTool = toolsDictionary[Tools.Brush];
 
             layers = new Layer[3];
             layers[0] = new Layer(1);
@@ -226,7 +214,7 @@ namespace Grafika_lab_1_TK
             }
         }
 
-        public void ToogleLayer(object parameter)
+        public void ToggleLayer(object parameter)
         {
             if (parameter is int layerNumber)
             {
@@ -236,33 +224,42 @@ namespace Grafika_lab_1_TK
 
         public void SelectLayer(object parameter)
         {
-            if (parameter is int layerNumber)
+            if (parameter is string layerNumber)
             {
-                _selectedLayer = layers[layerNumber];
+                int layer = int.Parse(layerNumber);
+                Debug.WriteLine("Selected layer: " + layer);
+                _selectedLayer = layers[layer - 1];
                 OnPropertyChanged(nameof(SelectedLayerLabel));
             }
         }
 
-        public void Canvas_MouseMove(object sender, MouseEventArgs e)
-        {
-            _selectedTool.MouseMove(sender, e);
-
-        }
-
-        public void Canvas_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            _selectedTool.MouseDown(sender, e);
-
-        }
-
         public void ChangeTool(object parameter)
         {
-            if (parameter is Tools tool)
+            Tools tool;
+            if (parameter is string toolName)
             {
+                tool = (Tools)Enum.Parse(typeof(Tools), toolName);
                 SelectedTool = tool;
+                _selectedTool = toolsDictionary[tool];
                 OnPropertyChanged(nameof(SelectedToolLabel));
             }
         }
+
+        public void Canvas_MouseMove(object sender, MouseEventArgs e, Point position)
+        {
+            _selectedTool.MouseMove(sender, e, position);
+        }
+
+        public void Canvas_MouseDown(object sender, MouseButtonEventArgs e, Point position)
+        {
+            _selectedTool.MouseDown(sender, e, position);
+        }
+
+        public void Canvas_MouseUp(object sender, MouseButtonEventArgs e, Point position)
+        {
+            _selectedTool.MouseUp(sender, e, position);
+        }
+
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -279,10 +276,6 @@ namespace Grafika_lab_1_TK
             return true;
         }
 
-        public void ResetTool()
-        {
-            //this.SelectedTool.Reset();
-        }
 
         public static HsvColor RgbToHsv(int r, int g, int b)
         {
@@ -324,7 +317,5 @@ namespace Grafika_lab_1_TK
 
             return new HsvColor(hue, saturation, value);
         }
-
-
     }
 }

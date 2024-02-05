@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Collections.ObjectModel;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -9,79 +10,69 @@ namespace Grafika_lab_1_TK.Tools
     public class PathTool : ToolBase
     {
         private Line? _previewLine = null;
-        private readonly Canvas _paintSurface;
-        private Point startPoint;
-        private readonly MainViewModel _viewModel;
+        private Point? startPoint = null;
 
-
-        public override void MouseMove(object sender, MouseEventArgs e)
+        public PathTool(ObservableCollection<Shape> shapes, MainViewModel viewModel) : base(shapes, viewModel)
         {
-            Point currentMousePosition = e.GetPosition(_paintSurface);
-            if (_previewLine != null)
-            {
-                _previewLine.X2 = currentMousePosition.X;
-                _previewLine.Y2 = currentMousePosition.Y;
-            }
         }
 
-        public PathTool(Canvas paintSurface, MainViewModel viewModel) : base(paintSurface, viewModel)
+        public override void MouseDown(object sender, MouseButtonEventArgs e, Point position)
         {
-            _paintSurface = paintSurface;
-            _viewModel = viewModel;
-        }
-
-        public override void MouseDown(object sender, MouseEventArgs e)
-        {
-            if (e.RightButton == MouseButtonState.Pressed)
+            if (e.ChangedButton == MouseButton.Left)
             {
-                _paintSurface.Children.Remove(_previewLine);
-                _previewLine = null;
-                _paintSurface.MouseMove -= MouseMove;
-                return;
-            }
-            if (_previewLine == null)
-            {
-                startPoint = e.GetPosition(_paintSurface);
-                _previewLine = new Line
+                if (_previewLine != null && startPoint.HasValue)
                 {
-                    Stroke = Brushes.Gray,
-                    StrokeThickness = 2
-                };
+                    Line finalLine = new Line
+                    {
+                        Stroke = _viewModel.SelectedColor,
+                        StrokeThickness = _viewModel.BrushSize * 2,
+                        X1 = startPoint.Value.X,
+                        Y1 = startPoint.Value.Y,
+                        X2 = position.X,
+                        Y2 = position.Y
+                    };
 
-                _previewLine.X1 = startPoint.X;
-                _previewLine.Y1 = startPoint.Y;
-                _paintSurface.Children.Add(_previewLine);
+                    _shapes.Add(finalLine);
+                    _shapes.Remove(_previewLine);
+                    _previewLine = null;
+                }
 
-                _paintSurface.MouseMove += MouseMove;
-            }
-            else
-            {
-                Point endPoint = e.GetPosition(_paintSurface);
-                _paintSurface.Children.Remove(_previewLine);
-                Line finalLine = new Line
-                {
-                    Stroke = _viewModel.SelectedColor,
-                    StrokeThickness = _viewModel.BrushSize * 2,
-                    X1 = startPoint.X,
-                    Y1 = startPoint.Y,
-                    X2 = endPoint.X,
-                    Y2 = endPoint.Y
-                };
-
-                _paintSurface.Children.Add(finalLine);
+                startPoint = position;
 
                 _previewLine = new Line
                 {
                     Stroke = Brushes.Gray,
-                    StrokeThickness = 2
+                    StrokeThickness = _viewModel.BrushSize,
+                    X1 = startPoint.Value.X,
+                    Y1 = startPoint.Value.Y
                 };
 
-                startPoint = e.GetPosition(_paintSurface);
-
-                _previewLine.X1 = startPoint.X;
-                _previewLine.Y1 = startPoint.Y;
-                _paintSurface.Children.Add(_previewLine);
+                _shapes.Add(_previewLine);
             }
+            else if (e.ChangedButton == MouseButton.Right)
+            {
+                ResetTool();
+            }
+        }
+
+        public override void MouseMove(object sender, MouseEventArgs e, Point position)
+        {
+            if (startPoint.HasValue && _previewLine != null)
+            {
+                _previewLine.X2 = position.X;
+                _previewLine.Y2 = position.Y;
+            }
+        }
+
+        public override void MouseUp(object sender, MouseButtonEventArgs e, Point position)
+        {
+        }
+
+        private void ResetTool()
+        {
+            _shapes.Remove(_previewLine);
+            _previewLine = null;
+            startPoint = null;
         }
     }
 }

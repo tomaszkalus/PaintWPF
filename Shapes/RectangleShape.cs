@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,11 +11,9 @@ using System.Windows.Shapes;
 
 namespace Grafika_lab_1_TK.Shapes
 {
-    class RectangleShape : Shape
+    class RectangleShape : ShapeBase
     {
-        public RectangleShape(Canvas paintSurface, MainViewModel viewModel) : base(paintSurface, viewModel)
-        {
-        }
+
 
         protected override PointCollection GetPoints(Point point)
         {
@@ -25,6 +24,10 @@ namespace Grafika_lab_1_TK.Shapes
                 new(point.X - _size, point.Y - _size),
                 new(point.X - _size, point.Y + _size)
             };
+        }
+
+        public RectangleShape(ObservableCollection<Shape> shapes, MainViewModel viewModel) : base(shapes, viewModel)
+        {
         }
     }
 }

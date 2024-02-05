@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,11 +11,9 @@ using System.Windows.Shapes;
 
 namespace Grafika_lab_1_TK.Shapes
 {
-    class StarShape : Shape
+    class StarShape : ShapeBase
     {
-        public StarShape(Canvas paintSurface, MainViewModel viewModel) : base(paintSurface, viewModel)
-        {
-        }
+        
 
         protected override PointCollection GetPoints(Point point)
         {
@@ -40,6 +39,10 @@ namespace Grafika_lab_1_TK.Shapes
                 angle += angleIncrement;
             }
             return points;
+        }
+
+        public StarShape(ObservableCollection<Shape> shapes, MainViewModel viewModel) : base(shapes, viewModel)
+        {
         }
     }
 

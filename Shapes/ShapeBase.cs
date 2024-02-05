@@ -1,21 +1,23 @@
-﻿using System.Windows;
+﻿using System.Collections.ObjectModel;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using Grafika_lab_1_TK.Tools;
 
 namespace Grafika_lab_1_TK.Shapes
 {
-    abstract class Shape
+    abstract class ShapeBase : ToolBase
     {
-        protected readonly Canvas _paintSurface;
         protected readonly MainViewModel _viewModel;
         protected int _size;
         protected bool _isDrawing = false;
         protected Polygon? _previewShape = null;
-        public Shape(Canvas paintSurface, MainViewModel viewModel)
+        private ObservableCollection<Shape> _shapes;
+        public ShapeBase(ObservableCollection<Shape> shapes, MainViewModel viewModel) : base(shapes, viewModel)
         {
-            _paintSurface = paintSurface;
+            _shapes = shapes;
             _viewModel = viewModel;
             _size = 50;
         }
@@ -29,24 +31,28 @@ namespace Grafika_lab_1_TK.Shapes
                 Points = GetPoints(point),
             };
 
-            _paintSurface.Children.Add(polygon);
+            _shapes.Add(polygon);
             return polygon;
         }
 
         protected abstract PointCollection GetPoints(Point point);
 
-        public void MouseMove(object sender, MouseEventArgs e)
-        {
-            _paintSurface.Children.Remove(_previewShape);
-            Point currentMousePosition = e.GetPosition(_paintSurface);
 
-            _previewShape = DrawShape(currentMousePosition);
+        public override void MouseDown(object sender, MouseButtonEventArgs e, Point position)
+        {
+            DrawShape(position);
         }
 
-        public void MouseDown(object sender, MouseEventArgs e)
+        public override void MouseMove(object sender, MouseEventArgs e, Point position)
         {
-            Point currentMousePosition = e.GetPosition(_paintSurface);
-            DrawShape(currentMousePosition);
+            _shapes.Remove(_previewShape);
+
+            _previewShape = DrawShape(position);
+        }
+
+        public override void MouseUp(object sender, MouseButtonEventArgs e, Point position)
+        {
+            
         }
     }
 }
