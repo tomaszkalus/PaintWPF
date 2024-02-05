@@ -15,16 +15,18 @@
         </Grid.ColumnDefinitions>
 
 
+
+
         <Canvas Name="paintSurface" 
-        MouseMove="Canvas_MouseMove" 
-        MouseUp="Canvas_MouseUp"  
-        MouseDown="Canvas_MouseDown"
-        
-        Grid.Column="0">
+                MouseMove="Canvas_MouseMove" 
+                MouseDown="Canvas_MouseDown"
+
+                Grid.Column="0">
             <Canvas.Background>
                 <SolidColorBrush Color="White" Opacity="100"/>
             </Canvas.Background>
         </Canvas>
+
 
         <StackPanel  Grid.Column="1" Background="Beige">
             <StackPanel Orientation="Horizontal" Margin="5 15 5 10" VerticalAlignment="Center" >

@@ -7,14 +7,14 @@ using System.Windows.Shapes;
 
 namespace Grafika_lab_1_TK.Tools
 {
-    public class RectangleTool
+    public class RectangleTool : ToolBase
     {
         private Rectangle? _previewRectangle = null;
         private readonly Canvas _paintSurface;
         private Point startPoint;
         private readonly MainViewModel _viewModel;
 
-        public void MouseMove(object sender, MouseEventArgs e)
+        public override void MouseMove(object sender, MouseEventArgs e)
         {
             Point currentMousePosition = e.GetPosition(_paintSurface);
             if (_previewRectangle != null)
@@ -32,13 +32,13 @@ namespace Grafika_lab_1_TK.Tools
             }
         }
 
-        public RectangleTool(Canvas paintSurface, MainViewModel viewModel)
+        public RectangleTool(Canvas paintSurface, MainViewModel viewModel) : base(paintSurface, viewModel)
         {
             _paintSurface = paintSurface;
             _viewModel = viewModel;
         }
 
-        public void MouseDown(object sender, MouseEventArgs e)
+        public override void MouseDown(object sender, MouseEventArgs e)
         {
             if (_previewRectangle == null)
             {

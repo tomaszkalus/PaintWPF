@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -7,20 +8,23 @@ using System.Windows.Shapes;
 
 namespace Grafika_lab_1_TK.Tools
 {
-    public class BrushTool
+    public class BrushTool : ToolBase
     {
         private Ellipse? _previewEllipse = null;
         private Point? _previousPoint = null;
         private readonly Canvas _paintSurface;
         private readonly MainViewModel _viewModel;
+        private readonly Layer _layer;
+        private readonly ObservableCollection<Shape> _shapes;
 
-        public BrushTool(Canvas paintSurface, MainViewModel viewModel)
+        public BrushTool(Canvas paintSurface, MainViewModel viewModel) : base(paintSurface, viewModel)
         {
             _paintSurface = paintSurface;
             _viewModel = viewModel;
+            //_shapes = shapes;
         }
 
-        public void MouseMove(object sender, MouseEventArgs e)
+        public override void MouseMove(object sender, MouseEventArgs e)
         {
             if (e.LeftButton == MouseButtonState.Pressed)
             {
@@ -48,6 +52,7 @@ namespace Grafika_lab_1_TK.Tools
                         ellipse.Width = diameter;
                         ellipse.Height = diameter;
                         ellipse.Margin = new Thickness(x - _viewModel.BrushSize, y - _viewModel.BrushSize, 0, 0);
+                        //_layer.AddElement(ellipse);
                         _paintSurface.Children.Add(ellipse);
 
                     }
@@ -79,5 +84,9 @@ namespace Grafika_lab_1_TK.Tools
             }
         }
 
+        public override void MouseDown(object sender, MouseEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

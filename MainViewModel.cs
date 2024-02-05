@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
@@ -8,10 +9,15 @@ using System.Net.WebSockets;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using Grafika_lab_1_TK.Shapes;
+using Grafika_lab_1_TK.Tools;
 using Color = System.Windows.Media.Color;
 using ColorConverter = System.Windows.Media.ColorConverter;
+using Shape = System.Windows.Shapes.Shape;
 
 namespace Grafika_lab_1_TK
 {
@@ -33,7 +39,8 @@ namespace Grafika_lab_1_TK
         }
     }
 
-    public class MainViewModel : INotifyPropertyChanged 
+
+    public class MainViewModel : INotifyPropertyChanged
     {
         private SolidColorBrush _selectedColor;
 
@@ -42,8 +49,15 @@ namespace Grafika_lab_1_TK
         private int _colorG = 0;
         private int _colorB = 0;
 
+        private Layer[] layers;
+
         private int[] _layersOpacity;
-        private int _selectedLayer;
+        private Layer _selectedLayer;
+
+        public ObservableCollection<Shape> Shapes { get; private set; } = new ObservableCollection<Shape>();
+
+        public Layer SelectedLayer => _selectedLayer;
+
         public enum Tools
         {
             Ellipse,
@@ -56,7 +70,11 @@ namespace Grafika_lab_1_TK
             RectangleShape,
             StarShape
         }
+
+        private Dictionary<Tools, ToolBase> toolsDictionary;
+
         public Tools SelectedTool { get; set; } = Tools.Brush;
+        private ToolBase _selectedTool;
 
         public SolidColorBrush SelectedColor
         {
@@ -86,6 +104,8 @@ namespace Grafika_lab_1_TK
 
         public RelayCommand ChangeColorCommand { get; }
         public RelayCommand ChangeBrushSizeCommand { get; }
+        public RelayCommand ToogleLayerCommand { get; }
+        public RelayCommand SelectLayerCommand { get; }
 
 
         public int ColorR
@@ -124,8 +144,21 @@ namespace Grafika_lab_1_TK
         public string ColorRgbLabel => $"RGB: ({ColorR.ToString()}, {ColorG.ToString()}, {ColorB.ToString()})";
         public string ColorHex => "#" + ColorR.ToString("X2") + ColorG.ToString("X2") + ColorB.ToString("X2");
         public string SelectedToolLabel => $"Selected tool: {SelectedTool.ToString()}";
-        public string ColorHsvLabel => $"HSV: ({Math.Round(HsvColorValue.Hue), 2}, {HsvColorValue.Saturation}, {HsvColorValue.Value})";
+        public string ColorHsvLabel => $"HSV: ({Math.Round(HsvColorValue.Hue),2}, {HsvColorValue.Saturation}, {HsvColorValue.Value})";
         public HsvColor HsvColorValue => RgbToHsv(ColorR, ColorG, ColorB);
+
+        public string SelectedLayerLabel => $"Selected layer: {SelectedLayer}";
+        private Canvas _paintSurface;
+
+        public Canvas PaintSurface
+        {
+            get { return _paintSurface; }
+            set
+            {
+                _paintSurface = value;
+                OnPropertyChanged();
+            }
+        }
 
         public MainViewModel()
         {
@@ -133,7 +166,33 @@ namespace Grafika_lab_1_TK
             BrushSize = 5;
             ChangeColorCommand = new RelayCommand(ChangeColor);
             ChangeBrushSizeCommand = new RelayCommand(ChangeBrushSize);
+            ToogleLayerCommand = new RelayCommand(ToogleLayer);
+            SelectLayerCommand = new RelayCommand(SelectLayer);
+            
+
+
+
+            //toolsDictionary = new Dictionary<Tools, ToolBase>()
+            //{
+            //    { Tools.Ellipse, new EllipseTool(paintSurface, this) },
+            //    { Tools.Line, new LineTool(paintSurface, this) },
+            //    { Tools.Path, new PathTool(paintSurface, this) },
+            //    { Tools.Polygon, new PolygonTool(paintSurface, this) },
+            //    { Tools.Rectangle, new RectangleTool(paintSurface, this) },
+            //    { Tools.Brush, new BrushTool(Shapes, this) },
+            //};
+
+            //_selectedTool = toolsDictionary[Tools.Brush];
+
+            layers = new Layer[3];
+            layers[0] = new Layer(1);
+            layers[1] = new Layer(2);
+            layers[2] = new Layer(3);
+
+            _selectedLayer = layers[0];
         }
+
+
         private void RefreshColor()
         {
             OnPropertyChanged(nameof(ColorHex));
@@ -165,6 +224,35 @@ namespace Grafika_lab_1_TK
             {
                 BrushSize = size;
             }
+        }
+
+        public void ToogleLayer(object parameter)
+        {
+            if (parameter is int layerNumber)
+            {
+                layers[layerNumber].IsVisible = !layers[layerNumber].IsVisible;
+            }
+        }
+
+        public void SelectLayer(object parameter)
+        {
+            if (parameter is int layerNumber)
+            {
+                _selectedLayer = layers[layerNumber];
+                OnPropertyChanged(nameof(SelectedLayerLabel));
+            }
+        }
+
+        public void Canvas_MouseMove(object sender, MouseEventArgs e)
+        {
+            _selectedTool.MouseMove(sender, e);
+
+        }
+
+        public void Canvas_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            _selectedTool.MouseDown(sender, e);
+
         }
 
         public void ChangeTool(object parameter)
@@ -237,6 +325,6 @@ namespace Grafika_lab_1_TK
             return new HsvColor(hue, saturation, value);
         }
 
-        
+
     }
 }

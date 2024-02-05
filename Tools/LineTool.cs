@@ -6,7 +6,7 @@ using System.Windows.Shapes;
 
 namespace Grafika_lab_1_TK.Tools
 {
-    public class LineTool
+    public class LineTool : ToolBase
     {
         private Line? _previewLine = null;
         private readonly Canvas _paintSurface;
@@ -14,7 +14,7 @@ namespace Grafika_lab_1_TK.Tools
         private readonly MainViewModel _viewModel;
 
 
-        public void MouseMove(object sender, MouseEventArgs e)
+        public override void MouseMove(object sender, MouseEventArgs e)
         {
             Point currentMousePosition = e.GetPosition(_paintSurface);
             if (_previewLine != null)
@@ -24,13 +24,13 @@ namespace Grafika_lab_1_TK.Tools
             }
         }
 
-        public LineTool(Canvas paintSurface, MainViewModel viewModel)
+        public LineTool(Canvas paintSurface, MainViewModel viewModel) : base(paintSurface, viewModel)
         {
             _paintSurface = paintSurface;
             _viewModel = viewModel;
         }
 
-        public void MouseDown(object sender, MouseEventArgs e)
+        public override void MouseDown(object sender, MouseEventArgs e)
         {
 
             if (_previewLine == null)

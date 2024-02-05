@@ -31,6 +31,9 @@ namespace Grafika_lab_1_TK
         private readonly StarShape starShape;
 
         private double[,] kernelMatrix = new double[3, 3];
+        private Layer _activeLayer;
+
+        
 
         private readonly MainViewModel mainViewModel;
         private MainViewModel.Tools selectedTool => mainViewModel.SelectedTool;
@@ -41,6 +44,8 @@ namespace Grafika_lab_1_TK
             mainViewModel = new MainViewModel();
             InitializeComponent();
             this.DataContext = this.mainViewModel;
+
+            _activeLayer = mainViewModel.SelectedLayer;
 
             lineTool = new LineTool(paintSurface, mainViewModel);
             brushTool = new BrushTool(paintSurface, mainViewModel);
@@ -89,26 +94,7 @@ namespace Grafika_lab_1_TK
                 case MainViewModel.Tools.StarShape:
                     starShape.MouseMove(sender, e);
                     break;
-                
-            }
 
-        }
-
-        private void Canvas_MouseUp(object sender, MouseButtonEventArgs e)
-        {
-            switch (selectedTool)
-            {
-                case MainViewModel.Tools.Brush:
-                    break;
-                case MainViewModel.Tools.TriangleShape:
-                    triangleShape.MouseUp(sender, e);
-                    break;
-                case MainViewModel.Tools.RectangleShape:
-                    rectangleShape.MouseUp(sender, e);
-                    break;
-                case MainViewModel.Tools.StarShape:
-                    starShape.MouseUp(sender, e);
-                    break;
             }
 
         }
@@ -134,7 +120,7 @@ namespace Grafika_lab_1_TK
                 case MainViewModel.Tools.Rectangle:
                     rectangleTool.MouseDown(sender, e);
                     break;
-                case MainViewModel.Tools.TriangleShape: 
+                case MainViewModel.Tools.TriangleShape:
                     triangleShape.MouseDown(sender, e);
                     break;
                 case MainViewModel.Tools.RectangleShape:

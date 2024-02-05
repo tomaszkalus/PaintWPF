@@ -7,14 +7,14 @@ using System.Windows.Shapes;
 
 namespace Grafika_lab_1_TK.Tools
 {
-    public class EllipseTool
+    public class EllipseTool : ToolBase
     {
         private Ellipse? _previewEllipse = null;
         private readonly Canvas _paintSurface;
         private Point startPoint;
         private readonly MainViewModel _viewModel;
 
-        public void MouseMove(object sender, MouseEventArgs e)
+        public override void MouseMove(object sender, MouseEventArgs e)
         {
             Point currentMousePosition = e.GetPosition(_paintSurface);
             if (_previewEllipse != null)
@@ -30,13 +30,13 @@ namespace Grafika_lab_1_TK.Tools
             }
         }
 
-        public EllipseTool(Canvas paintSurface, MainViewModel viewModel)
+        public EllipseTool(Canvas paintSurface, MainViewModel viewModel) : base(paintSurface, viewModel)
         {
             _paintSurface = paintSurface;
             _viewModel = viewModel;
         }
 
-        public void MouseDown(object sender, MouseEventArgs e)
+        public override void MouseDown(object sender, MouseEventArgs e)
         {
             if (_previewEllipse == null)
             {

@@ -7,7 +7,7 @@ using System.Windows.Shapes;
 
 namespace Grafika_lab_1_TK.Tools
 {
-    public class PolygonTool
+    public class PolygonTool : ToolBase
     {
         private Line? _previewLine = null;
         private readonly Canvas _paintSurface;
@@ -30,7 +30,7 @@ namespace Grafika_lab_1_TK.Tools
             return;
         }
 
-        public void MouseMove(object sender, MouseEventArgs e)
+        public override void MouseMove(object sender, MouseEventArgs e)
         {
             Point currentMousePosition = e.GetPosition(_paintSurface);
             if (_previewLine != null)
@@ -40,13 +40,13 @@ namespace Grafika_lab_1_TK.Tools
             }
         }
 
-        public PolygonTool(Canvas paintSurface, MainViewModel viewModel)
+        public PolygonTool(Canvas paintSurface, MainViewModel viewModel) : base(paintSurface, viewModel)
         {
             _paintSurface = paintSurface;
             _viewModel = viewModel;
         }
 
-        public void MouseDown(object sender, MouseEventArgs e)
+        public override void MouseDown(object sender, MouseEventArgs e)
         {
             if (e.RightButton == MouseButtonState.Pressed)
             {

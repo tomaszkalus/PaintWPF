@@ -37,7 +37,6 @@ namespace Grafika_lab_1_TK.Shapes
 
         public void MouseMove(object sender, MouseEventArgs e)
         {
-
             _paintSurface.Children.Remove(_previewShape);
             Point currentMousePosition = e.GetPosition(_paintSurface);
 
@@ -46,18 +45,8 @@ namespace Grafika_lab_1_TK.Shapes
 
         public void MouseDown(object sender, MouseEventArgs e)
         {
-            if (_isDrawing == false)
-            {
-                Point currentMousePosition = e.GetPosition(_paintSurface);
-                DrawShape(currentMousePosition);
-            }
-
-            _isDrawing = true;
-        }
-
-        public void MouseUp(object sender, MouseEventArgs e)
-        {
-            _isDrawing = false;
+            Point currentMousePosition = e.GetPosition(_paintSurface);
+            DrawShape(currentMousePosition);
         }
     }
 }
