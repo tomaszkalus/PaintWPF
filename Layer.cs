@@ -4,15 +4,22 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Shapes;
 
 namespace Grafika_lab_1_TK
 {
     public class Layer
     {
+
         private int _opacity;
-        private List<UIElement> _elements;
+        private List<Shape> _elements;
         private bool _isVisible;
-        private readonly int _number;
+        private readonly int _id;
+        public string Name => "Layer " + (_id + 1);
+        public int Id => _id;
+        public List<Shape> Elements => _elements;
+
+        public string ButtonContent => _isVisible ? "Hide" : "Show";
 
         public int Opacity
         {
@@ -36,6 +43,7 @@ namespace Grafika_lab_1_TK
                 _isVisible = value;
             }
         }
+
 
         public void ShowLayer()
         {
@@ -64,23 +72,18 @@ namespace Grafika_lab_1_TK
             _isVisible = false;
         }
 
-        public void AddElement(UIElement element)
+        public void AddElement(Shape element)
         {
             _elements.Add(element);
         }
 
-        public Layer(int number)
+        public Layer(int id)
         {
-            _elements = new List<UIElement>();
+            _elements = new List<Shape>();
             _opacity = 100;
             _isVisible = true;
-            _number = number;
-            
-        }
+            _id = id;
 
-        public override string ToString()
-        {
-            return _number.ToString();
         }
     }
 }

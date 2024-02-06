@@ -32,6 +32,7 @@ namespace Grafika_lab_1_TK.Shapes
             };
 
             _shapes.Add(polygon);
+            _viewModel.SelectedLayer.AddElement(polygon);
             return polygon;
         }
 

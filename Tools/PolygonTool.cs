@@ -62,7 +62,7 @@ namespace Grafika_lab_1_TK.Tools
                         Y2 = firstPoint.Value.Y
                     };
 
-                    _shapes.Add(finalLine);
+                    DrawShape(finalLine);
                     ResetTool();
                     return;
                 }
@@ -76,7 +76,7 @@ namespace Grafika_lab_1_TK.Tools
                     X2 = position.X,
                     Y2 = position.Y
                 };
-                _shapes.Add(nextLine);
+                DrawShape(nextLine);
                 startPoint = position;
 
                 _previewLine.X1 = startPoint.Value.X;

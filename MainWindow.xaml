@@ -14,11 +14,6 @@
             <ColumnDefinition Width="25*"/>
         </Grid.ColumnDefinitions>
 
-
-
-
-        
-
         <ItemsControl ItemsSource="{Binding Shapes}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
@@ -116,28 +111,36 @@
                 <Button Command="{Binding ChangeColorCommand}" CommandParameter="#fc3ae6" Margin="0 0 8 0" Content=" " Background="#fc3ae6" Width="29" Height="29"/>
             </StackPanel>
 
-            <Label Content="{Binding SelectedLayerLabel}"/>
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                <Label VerticalAlignment="Center">Layer 1</Label>
-                <Button Command="{Binding ToogleLayerCommand}" CommandParameter="1" Content="Show/Hide"  Margin="10 0 10 0"/>
-                <Button Command="{Binding SelectLayerCommand}" CommandParameter="1" Content="Select layer"/>
+            <TextBlock Text="Layers" HorizontalAlignment="Center" FontSize="18" FontWeight="Bold" Margin="0 20 0 0"/>
+            <Grid>
+                <ListView Margin="10" Name="LayerListView" ItemsSource="{Binding Layers}" MaxHeight="100px" Height="100px">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <WrapPanel>
+                                <TextBlock Text="{Binding Name}" FontWeight="Bold" VerticalAlignment="Center"/>
+                                <Button Command="{Binding DataContext.ToggleLayerCommand, RelativeSource={RelativeSource AncestorType=Window}}" 
+                                        CommandParameter="{Binding Id}" 
+                                        Content="{Binding ButtonContent}" 
+                                        Margin="10 0 0 0"/>
 
-            </StackPanel>
+                                <Button Command="{Binding DataContext.SelectLayerCommand, RelativeSource={RelativeSource AncestorType=Window}}" 
+                                        CommandParameter="{Binding Id}" 
+                                        Content="Select" 
+                                        Margin="10 0 0 0"/>
 
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                <Label VerticalAlignment="Center">Layer 2</Label>
-                <Button Command="{Binding ToogleLayerCommand}" CommandParameter="2" Content="Show/Hide"  Margin="10 0 10 0"/>
-                <Button Command="{Binding SelectLayerCommand}" CommandParameter="2" Content="Select layer"/>
-            </StackPanel>
+                                <Button Command="{Binding DataContext.DeleteLayerCommand, RelativeSource={RelativeSource AncestorType=Window}}" 
+                                        CommandParameter="{Binding Id}" 
+                                        Content="Delete" 
+                                        Margin="10 0 0 0"/>
+                            </WrapPanel>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </Grid>
+            <TextBlock Text="{Binding SelectedLayerLabel}" HorizontalAlignment="Center" FontWeight="Bold" Margin="0 0 0 0"/>
+            <Button Command="{Binding AddLayerCommand}" Content="Add Layer" Width="100" Height="30" Margin="10"/>
 
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                <Label VerticalAlignment="Center">Layer 3</Label>
-                <Button Command="{Binding ToogleLayerCommand}" CommandParameter="3" Content="Show/Hide"  Margin="10 0 10 0"/>
-                <Button Command="{Binding SelectLayerCommand}" CommandParameter="3" Content="Select layer"/>
-            </StackPanel>
-
-
-            <TextBlock Text="Kernel Filter" HorizontalAlignment="Center" FontSize="18" FontWeight="Bold" Margin="0 20 0 0"/>
+            <TextBlock Text="Kernel Filter" HorizontalAlignment="Center" FontSize="18" FontWeight="Bold" Margin="0 0 0 0"/>
             <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20">
                 <Grid>
                     <Grid.ColumnDefinitions>

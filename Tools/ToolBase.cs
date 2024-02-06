@@ -24,5 +24,11 @@ namespace Grafika_lab_1_TK.Tools
         public abstract void MouseDown(object sender, MouseButtonEventArgs e, Point position);
 
         public abstract void MouseUp(object sender, MouseButtonEventArgs e, Point position);
+
+        public void DrawShape(Shape shape)
+        {
+            _shapes.Add(shape);
+            _viewModel.SelectedLayer.AddElement(shape);
+        }
     }
 }

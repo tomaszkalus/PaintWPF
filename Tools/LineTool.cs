@@ -61,7 +61,7 @@ namespace Grafika_lab_1_TK.Tools
                 finalLine.X2 = position.X;
                 finalLine.Y2 = position.Y;
                 
-                _shapes.Add(finalLine);
+                DrawShape(finalLine);
 
                 _previewLine = null;
                 startPoint = null;

@@ -64,7 +64,7 @@ namespace Grafika_lab_1_TK.Tools
                 finalRectangle.SetValue(Canvas.LeftProperty, Math.Min(startPoint.Value.X, position.X));
                 finalRectangle.SetValue(Canvas.TopProperty, Math.Min(startPoint.Value.Y, position.Y));
 
-                _shapes.Add(finalRectangle);
+                DrawShape(finalRectangle);
 
                 _previewRectangle = null;
                 startPoint = null;

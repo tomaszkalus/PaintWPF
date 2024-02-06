@@ -3,8 +3,11 @@ using Grafika_lab_1_TK.Tools;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Linq;
+using System.Reflection.Metadata;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
@@ -39,16 +42,22 @@ namespace Grafika_lab_1_TK
         private SolidColorBrush _selectedColor;
 
         private int _brushSize;
-        private int _colorR = 0;
-        private int _colorG = 0;
-        private int _colorB = 0;
+        private int _colorR;
+        private int _colorG;
+        private int _colorB;
 
-        private Layer[] layers;
+        private readonly ObservableCollection<Layer> _layers;
 
-        private int[] _layersOpacity;
+        public Layer[] Layers
+        {
+            get => _layers.ToArray();
+        }
+
         private Layer _selectedLayer;
+        public Layer SelectedLayer => _selectedLayer;
+        private int _lastLayerId;
 
-        public ObservableCollection<Shape> Shapes { get; private set; } = new ObservableCollection<Shape>();
+        public ObservableCollection<Shape> Shapes { get; private set; } = new();
 
 
         public enum Tools
@@ -100,6 +109,8 @@ namespace Grafika_lab_1_TK
         public RelayCommand ToggleLayerCommand { get; }
         public RelayCommand SelectLayerCommand { get; }
         public RelayCommand ChangeToolCommand { get; }
+        public RelayCommand AddLayerCommand { get; }
+        public RelayCommand DeleteLayerCommand { get; }
 
 
         public int ColorR
@@ -144,7 +155,8 @@ namespace Grafika_lab_1_TK
 
         public HsvColor HsvColorValue => RgbToHsv(ColorR, ColorG, ColorB);
 
-        public string SelectedLayerLabel => $"Selected layer: {_selectedLayer}";
+        public string SelectedLayerLabel => $"Selected layer: {_selectedLayer.Name}";
+        
 
         public MainViewModel()
         {
@@ -155,6 +167,9 @@ namespace Grafika_lab_1_TK
             ToggleLayerCommand = new RelayCommand(ToggleLayer);
             SelectLayerCommand = new RelayCommand(SelectLayer);
             ChangeToolCommand = new RelayCommand(ChangeTool);
+            AddLayerCommand = new RelayCommand(AddLayer);
+            DeleteLayerCommand = new RelayCommand(DeleteLayer);
+
 
 
             toolsDictionary = new Dictionary<Tools, ToolBase>()
@@ -172,12 +187,73 @@ namespace Grafika_lab_1_TK
 
             _selectedTool = toolsDictionary[Tools.Brush];
 
-            layers = new Layer[3];
-            layers[0] = new Layer(1);
-            layers[1] = new Layer(2);
-            layers[2] = new Layer(3);
+            _layers = new ObservableCollection<Layer>();
+            _lastLayerId = 0;
+            AddLayer(false);
 
-            _selectedLayer = layers[0];
+            _selectedLayer = Layers[0];
+        }
+
+
+        private void DeleteLayer(object parameter)
+        {
+            if (parameter is int layerId)
+            {
+                var layerToRemove = _layers.FirstOrDefault(layer => layer.Id == layerId);
+
+                if (layerToRemove != null)
+                {
+                    foreach (var element in layerToRemove.Elements)
+                    {
+                        Shapes.Remove(element);
+                    }
+
+                    _layers.Remove(layerToRemove);
+                    OnPropertyChanged(nameof(Layers));
+                }
+            }
+        }
+
+
+        private void AddLayer(object obj)
+        {
+            int new_id = _lastLayerId;
+            _lastLayerId++;
+
+            _layers.Add(new Layer(new_id));
+            OnPropertyChanged(nameof(Layers));
+        }
+
+        public void ToggleLayer(object parameter)
+        {
+            if (parameter is int layerId)
+            {
+                var layerToToggle = _layers.FirstOrDefault(layer => layer.Id == layerId);
+
+                if (layerToToggle != null)
+                {
+
+
+                    layerToToggle.IsVisible = !layerToToggle.IsVisible;
+                    OnPropertyChanged(nameof(Layers));
+                }
+            }
+
+        }
+
+        public void SelectLayer(object parameter)
+        {
+
+            if (parameter is int layerId)
+            {
+                var layerToSelect = _layers.FirstOrDefault(layer => layer.Id == layerId);
+
+                if (layerToSelect != null)
+                {
+                    _selectedLayer = layerToSelect;
+                    OnPropertyChanged(nameof(SelectedLayerLabel));
+                }
+            }
         }
 
 
@@ -214,24 +290,7 @@ namespace Grafika_lab_1_TK
             }
         }
 
-        public void ToggleLayer(object parameter)
-        {
-            if (parameter is int layerNumber)
-            {
-                layers[layerNumber].IsVisible = !layers[layerNumber].IsVisible;
-            }
-        }
-
-        public void SelectLayer(object parameter)
-        {
-            if (parameter is string layerNumber)
-            {
-                int layer = int.Parse(layerNumber);
-                Debug.WriteLine("Selected layer: " + layer);
-                _selectedLayer = layers[layer - 1];
-                OnPropertyChanged(nameof(SelectedLayerLabel));
-            }
-        }
+        
 
         public void ChangeTool(object parameter)
         {

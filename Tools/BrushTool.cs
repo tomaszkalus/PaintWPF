@@ -69,7 +69,7 @@ namespace Grafika_lab_1_TK.Tools
                 Data = _pathGeometry
             };
 
-            _shapes.Add(_path);
+            DrawShape(_path);
 
             _previewEllipse.Visibility = Visibility.Collapsed;
         }

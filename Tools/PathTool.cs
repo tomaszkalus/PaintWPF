@@ -32,7 +32,7 @@ namespace Grafika_lab_1_TK.Tools
                         Y2 = position.Y
                     };
 
-                    _shapes.Add(finalLine);
+                    DrawShape(finalLine);
                     _shapes.Remove(_previewLine);
                     _previewLine = null;
                 }

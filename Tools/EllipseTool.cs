@@ -64,7 +64,7 @@ namespace Grafika_lab_1_TK.Tools
                 finalEllipse.SetValue(Canvas.LeftProperty, Math.Min(startPoint.Value.X, position.X));
                 finalEllipse.SetValue(Canvas.TopProperty, Math.Min(startPoint.Value.Y, position.Y));
 
-                _shapes.Add(finalEllipse);
+                DrawShape(finalEllipse);
 
                 _previewEllipse = null;
                 startPoint = null;
